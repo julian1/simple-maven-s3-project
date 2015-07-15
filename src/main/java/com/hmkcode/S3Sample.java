@@ -61,7 +61,63 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
  */
 public class S3Sample {
 
+
     public static void main(String[] args) throws IOException {
+
+        System.out.println("main()");
+
+        /*
+         * The ProfileCredentialsProvider will return your [default]
+         * credential profile by reading from the credentials file located at
+         * (~/.aws/credentials).
+         */
+        AWSCredentials credentials = null;
+        try {
+            credentials = new ProfileCredentialsProvider().getCredentials();
+        } catch (Exception e) {
+            throw new AmazonClientException(
+                    "Cannot load the credentials from the credential profiles file. " +
+                    "Please make sure that your credentials file is at the correct " +
+                    "location (~/.aws/credentials), and is in valid format.",
+                    e);
+        }
+
+        // looking up a single entry... 
+
+        System.out.println("connecting");
+
+        AmazonS3 s3 = new AmazonS3Client(credentials);
+
+        String bucketName = "imos-test-data-1" ;
+
+        System.out.println("Listing objects");
+
+        ObjectListing objectListing = s3.listObjects(new ListObjectsRequest()
+                .withBucketName(bucketName)
+               .withPrefix("home/meteo")   // 
+               .withMaxKeys(1)
+            )
+        ;
+
+        // boolean 
+        System.out.println("Length " + objectListing.getObjectSummaries().size());
+        System.out.println("found " + !objectListing.getObjectSummaries().isEmpty() );
+
+
+        for (S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
+            System.out.println(" - " + objectSummary.getKey() + "  " +
+                               "(size = " + objectSummary.getSize() + ")");
+        }
+
+        System.out.println("\ndone\n");
+    }
+ 
+
+
+
+
+
+    public static void main2(String[] args) throws IOException {
 
         /*
          * The ProfileCredentialsProvider will return your [default]
@@ -91,7 +147,7 @@ public class S3Sample {
 
         String bucketName = "imos-test-data-1" ;
 
-        String key = "MyObjectKey";
+        String key = "MyObjectKey" + UUID.randomUUID();
 
         System.out.println("===========================================");
         System.out.println("Getting Started with Amazon S3");
