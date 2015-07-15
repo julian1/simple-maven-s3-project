@@ -30,9 +30,10 @@
     </dependency>
   </dependencies>
 
-  <!-- http://stackoverflow.com/questions/574594/how-can-i-create-an-executable-jar-with-dependencies-using-maven -->
   <build>
     <plugins>
+
+      <!-- http://stackoverflow.com/questions/574594/how-can-i-create-an-executable-jar-with-dependencies-using-maven -->
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <configuration>
@@ -46,7 +47,27 @@
           </descriptorRefs>
         </configuration>
       </plugin>
+
+        <!-- http://stackoverflow.com/questions/97640/force-maven2-to-copy-dependencies-into-target-lib -->
+          <plugin>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>install</phase>
+                <goals>
+                  <goal>copy-dependencies</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+
     </plugins>
-  </build>
+
+
+      </build>
 
 </project>
