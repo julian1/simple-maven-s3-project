@@ -39,6 +39,7 @@ class S3Browser {
 
     public S3Browser( String credentialsPath, String profileName, String bucketName ) {
  
+        this.bucketName = bucketName;
         AWSCredentials credentials = null;
         try {
  
@@ -58,10 +59,7 @@ class S3Browser {
         }
 
         System.out.println("authenticating");
-
         this.s3 = new AmazonS3Client(credentials);
-        this.bucketName = bucketName;
-
         System.out.println("done authenticating");
     }
 
