@@ -89,6 +89,11 @@ class S3Browser {
             path = path.substring(1);
         }
 
+        if( path.isEmpty() || path.charAt(path.length() -1) != '/') {
+            path = path + '/';
+        }
+
+
         ObjectListing objectListing = s3.listObjects(new ListObjectsRequest()
             .withBucketName(bucketName)
            .withPrefix(path)
