@@ -4,6 +4,7 @@ package com.hmkcode;
 
 
 import java.util.List;
+import java.util.ArrayList;
 import java.io.IOException;
 
 
@@ -30,7 +31,6 @@ class S3Browser {
 
     private final AmazonS3 s3; 
     private final String bucketName; 
-
 
     public S3Browser( AmazonS3 s3, String bucketName ) {
         this.s3 = s3; 
@@ -71,15 +71,42 @@ class S3Browser {
 
         ObjectListing objectListing = s3.listObjects(new ListObjectsRequest()
             .withBucketName(bucketName)
-           // .withPrefix("home/meteo/")   // 
            .withPrefix(path)
            .withDelimiter("/")
-        )
-        ;
-        System.out.println("getting common prefixes");
+        );
 
+        System.out.println("getting common prefixes for " + path );
+
+        // VERY IMPORTANT 
+        // we're not seeing the files here. where other examples seem to show this...
         return objectListing.getCommonPrefixes();
     }
+
+
+    List<String> getFiles( String path )   // change name to getDirs() or get getChildDirs() or getVirtualDirs() etc.
+    {
+        while( path.charAt(0) == '/') {
+            path = path.substring(1);
+        }
+
+        ObjectListing objectListing = s3.listObjects(new ListObjectsRequest()
+            .withBucketName(bucketName)
+           .withPrefix(path)
+           .withDelimiter("/")
+        );
+
+        System.out.println("getting common prefixes for " + path );
+
+        List<S3ObjectSummary> summaries = objectListing.getObjectSummaries();
+        System.out.println("size " + summaries.size());
+        List<String> whoot = new ArrayList<String>();
+
+        for( S3ObjectSummary summary : summaries ) {
+            whoot.add( summary.getKey());
+        }
+        return whoot;
+    }
+
 }
 
 
@@ -90,6 +117,11 @@ public class S3Sample {
         for (String key : browser.getDirs(path)) {
             System.out.println(" - " + key );
             recurse( browser, key );
+
+            for( String file : browser.getFiles( key )) {
+                System.out.println(" * " + file );
+            } 
+
         }
     }
 
