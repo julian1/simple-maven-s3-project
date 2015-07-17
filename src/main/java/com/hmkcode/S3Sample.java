@@ -29,22 +29,24 @@ import com.amazonaws.auth.profile.ProfilesConfigFile;
 
 class S3Browser {
 
-    private final AmazonS3 s3; 
-    private final String bucketName; 
+    // See, http://stackoverflow.com/questions/5455284/how-can-i-get-only-one-level-of-objects-in-a-s3-bucket
+
+    private final AmazonS3 s3;
+    private final String bucketName;
 
     public S3Browser( AmazonS3 s3, String bucketName ) {
-        this.s3 = s3; 
+        this.s3 = s3;
         this.bucketName = bucketName;
-    } 
+    }
 
     public S3Browser( String credentialsPath, String profileName, String bucketName ) {
- 
+
         this.bucketName = bucketName;
         AWSCredentials credentials = null;
         try {
- 
+
             ProfilesConfigFile config = new ProfilesConfigFile( credentialsPath );
-            ProfileCredentialsProvider provider = new ProfileCredentialsProvider(config, profileName); 
+            ProfileCredentialsProvider provider = new ProfileCredentialsProvider(config, profileName);
             credentials = provider.getCredentials();
 
         } catch (Exception e) {
@@ -63,27 +65,8 @@ class S3Browser {
         System.out.println("done authenticating");
     }
 
-    List<String> getDirs( String path )   // change name to getDirs() or get getChildDirs() or getVirtualDirs() etc.
-    {
-        while( path.charAt(0) == '/') {
-            path = path.substring(1);
-        }
 
-        ObjectListing objectListing = s3.listObjects(new ListObjectsRequest()
-            .withBucketName(bucketName)
-           .withPrefix(path)
-           .withDelimiter("/")
-        );
-
-        System.out.println("getting common prefixes for " + path );
-
-        // VERY IMPORTANT 
-        // we're not seeing the files here. where other examples seem to show this...
-        return objectListing.getCommonPrefixes();
-    }
-
-
-    List<String> getFiles( String path )   // change name to getDirs() or get getChildDirs() or getVirtualDirs() etc.
+    static private String tidyPath( String path )
     {
         while( path.charAt(0) == '/') {
             path = path.substring(1);
@@ -92,15 +75,34 @@ class S3Browser {
         if( path.isEmpty() || path.charAt(path.length() -1) != '/') {
             path = path + '/';
         }
+        return path;
+    } 
 
+    private ObjectListing getListing( String path )
+    {
+        path = tidyPath( path);
 
-        ObjectListing objectListing = s3.listObjects(new ListObjectsRequest()
+        return s3.listObjects(new ListObjectsRequest()
             .withBucketName(bucketName)
            .withPrefix(path)
            .withDelimiter("/")
         );
+    }
 
-        System.out.println("getting common prefixes for " + path );
+    List<String> getDirs( String path )
+    {
+        ObjectListing objectListing = getListing( path );
+
+        System.out.println("getting dirs for " + path );
+        return objectListing.getCommonPrefixes();
+    }
+
+
+    List<String> getFiles( String path )
+    {
+        ObjectListing objectListing = getListing( path );
+
+        System.out.println("getting files for " + path );
 
         List<S3ObjectSummary> summaries = objectListing.getObjectSummaries();
         System.out.println("size " + summaries.size());
@@ -125,7 +127,7 @@ public class S3Sample {
 
             for( String file : browser.getFiles( key )) {
                 System.out.println(" * " + file );
-            } 
+            }
 
         }
     }
@@ -144,10 +146,10 @@ public class S3Sample {
 
 
 /*
-        // should write a recursive version ... that drills down... 
+        // should write a recursive version ... that drills down...
         ObjectListing objectListing = s3.listObjects(new ListObjectsRequest()
                 .withBucketName(bucketName)
-               .withPrefix("home/meteo/")   // 
+               .withPrefix("home/meteo/")   //
                .withDelimiter("/")
             )
         ;
@@ -160,14 +162,14 @@ public class S3Sample {
 
         ObjectListing objectListing = s3.listObjects(new ListObjectsRequest()
                 .withBucketName(bucketName)
-               .withPrefix("home/meteo/")   // 
+               .withPrefix("home/meteo/")   //
                .withDelimiter("/")
             )
         ;
         System.out.println("done getting listing");
 
 
-        // boolean 
+        // boolean
         System.out.println("found " + !objectListing.getObjectSummaries().isEmpty() );
 
         System.out.println("count " + objectListing.getObjectSummaries().size());
