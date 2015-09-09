@@ -10,11 +10,66 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.FileOutputStream;
 // import java.lang.Exception; 
-
 import java.io.IOException;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 import com.hmkcode.S3Browser;
+
+
+class WorkerThread implements Runnable {
+     
+    private String command;
+     
+    public WorkerThread(String s){
+        this.command=s;
+    }
+ 
+    @Override
+    public void run() {
+        System.out.println(Thread.currentThread().getName()+" Start. Command = "+command);
+        processCommand();
+        System.out.println(Thread.currentThread().getName()+" End.");
+    }
+ 
+    private void processCommand() {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+ 
+    @Override
+    public String toString(){
+        return this.command;
+    }
+}
+
+ 
+class SimpleThreadPool {
+
+   ExecutorService executor ;
+
+    public SimpleThreadPool() {
+        executor = Executors.newFixedThreadPool(5);
+    }
+
+    public void start() { 
+        for (int i = 0; i < 10; i++) {
+            Runnable worker = new WorkerThread("" + i);
+            executor.execute(worker);
+          }
+        executor.shutdown();
+        // sleep 
+        while (!executor.isTerminated()) {
+        }
+
+        System.out.println("Finished all threads");
+    }
+}
 
 
 class S3ToFileAdaptor
@@ -93,13 +148,17 @@ public class S3Sample {
 
     public static void main(String[] args) throws IOException {
 
+        SimpleThreadPool pool = new  SimpleThreadPool();
+        pool.start();
+        
+
+/*
         System.out.println("main()");
 
-        // S3Browser browser = new S3Browser( "/home/meteo/.aws/credentials" , "default", "imos-test-data-1" ) ;
         S3Browser browser = new S3Browser( "./aws_credentials" , "default", "imos-data" ) ;
 
-
         recurse( browser, "/IMOS/ACORN/gridded_1h-avg-current-map_QC/ROT/2014/01" );
+*/
     }
 }
 
