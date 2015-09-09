@@ -5,30 +5,66 @@ package com.hmkcode;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.io.IOException;
 
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.FileOutputStream;
+// import java.lang.Exception; 
 
+import java.io.IOException;
 
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.profile.ProfileCredentialsProvider;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.ListObjectsRequest;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-
-import com.amazonaws.auth.profile.ProfilesConfigFile;
 
 import com.hmkcode.S3Browser;
+
+
+class S3ToFileAdaptor
+{
+    // S3 to file adaptor... -- look at the ncdf generator for example
+    S3Browser browser;
+
+    S3ToFileAdaptor( S3Browser browser ) {
+        this.browser = browser; 
+    }
+
+    private static void copyStream(InputStream input, OutputStream output)
+        throws IOException
+    {
+        // avoid dependency on org.apache.commons.io.IOUtils 
+        byte[] buffer = new byte[16384]; // Adjust if you want
+        int bytesRead;
+        while ((bytesRead = input.read(buffer)) != -1)
+        {
+            output.write(buffer, 0, bytesRead);
+        }
+    }
+
+    String getObject( String key ) throws IOException  {
+        // returns the filename
+
+        System.out.println( "&&&&&&&&&&&\n JA S3ToFile getObject() " + key  ); 
+  
+        InputStream is = null; 
+        OutputStream os = null; 
+        String filename = "/tmp/ncwms/" + key.replace( "/", "-" ); // kiss 
+        try { 
+            is = browser.getObject( key );
+            // should delete file first? or try without 
+            os = new FileOutputStream( filename ); 
+            copyStream( is, os); 
+        }
+        catch( IOException e ) {
+            System.out.println( "&&&&&&&&&&&\n JA exception " + e.getMessage() ); 
+            throw e;
+        } finally { 
+            is.close();
+            os.close();
+        }
+
+        System.out.println( "&&&&&&&&&&&\n JA S3ToFile returning  " + filename ); 
+        // should return a File structure
+        return filename;
+    }
+}
 
 
 
@@ -45,10 +81,11 @@ public class S3Sample {
             for( String file : browser.getFiles( dir )) {
                 System.out.println(" opening " + file );
 
-                InputStream is = browser.getObject( "/" + file ); 
 
-                is.close();
- 
+                S3ToFileAdaptor s3ToFileAdaptor = new S3ToFileAdaptor(browser);
+
+                String f = s3ToFileAdaptor.getObject( file ); 
+
             }
 
         }
