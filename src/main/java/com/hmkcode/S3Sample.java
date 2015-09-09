@@ -26,95 +26,8 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import com.amazonaws.auth.profile.ProfilesConfigFile;
 
+import com.hmkcode.S3Browser;
 
-class S3Browser {
-
-    // See, http://stackoverflow.com/questions/5455284/how-can-i-get-only-one-level-of-objects-in-a-s3-bucket
-
-    private final AmazonS3 s3;
-    private final String bucketName;
-
-    public S3Browser( AmazonS3 s3, String bucketName ) {
-        this.s3 = s3;
-        this.bucketName = bucketName;
-    }
-
-    public S3Browser( String credentialsPath, String profileName, String bucketName ) {
-
-        this.bucketName = bucketName;
-        AWSCredentials credentials = null;
-        try {
-
-            ProfilesConfigFile config = new ProfilesConfigFile( credentialsPath );
-            ProfileCredentialsProvider provider = new ProfileCredentialsProvider(config, profileName);
-            credentials = provider.getCredentials();
-
-        } catch (Exception e) {
-
-            System.out.println("JA couldn't load credentials " + e.getMessage() );
-
-            throw new AmazonClientException(
-                    "Cannot load the credentials from the credential profiles file. " +
-                    "Please make sure that your credentials file is at the correct " +
-                    "location (~/.aws/credentials), and is in valid format.",
-                    e);
-        }
-
-        System.out.println("authenticating");
-        this.s3 = new AmazonS3Client(credentials);
-        System.out.println("done authenticating");
-    }
-
-
-    static private String tidyPath( String path )
-    {
-        while( path.charAt(0) == '/') {
-            path = path.substring(1);
-        }
-
-        if( path.isEmpty() || path.charAt(path.length() -1) != '/') {
-            path = path + '/';
-        }
-        return path;
-    } 
-
-    private ObjectListing getListing( String path )
-    {
-        path = tidyPath( path);
-
-        return s3.listObjects(new ListObjectsRequest()
-            .withBucketName(bucketName)
-           .withPrefix(path)
-           .withDelimiter("/")
-        );
-    }
-
-    List<String> getDirs( String path )
-    {
-        ObjectListing objectListing = getListing( path );
-
-        System.out.println("getting dirs for " + path );
-        return objectListing.getCommonPrefixes();
-    }
-
-
-    List<String> getFiles( String path )
-    {
-        ObjectListing objectListing = getListing( path );
-
-        System.out.println("getting files for " + path );
-
-        List<S3ObjectSummary> summaries = objectListing.getObjectSummaries();
-        System.out.println("size " + summaries.size());
-        List<String> whoot = new ArrayList<String>();
-
-        for( S3ObjectSummary summary : summaries ) {
-            whoot.add( summary.getKey());
-        }
-        return whoot;
-    }
-
-}
 
 
 public class S3Sample {
@@ -126,7 +39,7 @@ public class S3Sample {
             recurse( browser, key );
 
             for( String file : browser.getFiles( key )) {
-                System.out.println(" * " + file );
+                System.out.println(" file " + file );
             }
 
         }
@@ -136,10 +49,11 @@ public class S3Sample {
 
         System.out.println("main()");
 
-        S3Browser browser = new S3Browser( "/home/meteo/.aws/credentials" , "default", "imos-test-data-1" ) ;
-        // S3Browser browser = new S3Browser( s3, bucketName );
+        // S3Browser browser = new S3Browser( "/home/meteo/.aws/credentials" , "default", "imos-test-data-1" ) ;
+        S3Browser browser = new S3Browser( "./aws_credentials" , "default", "imos-data" ) ;
 
-        recurse( browser, "/home" );
+
+        recurse( browser, "/IMOS/ACORN/gridded_1h-avg-current-map_QC/ROT/2014/01" );
     }
 }
 
