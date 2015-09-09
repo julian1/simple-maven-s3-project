@@ -19,34 +19,6 @@ import java.util.concurrent.Executors;
 import com.hmkcode.S3Browser;
 
 
-class WorkerThread implements Runnable {
-     
-    private String command;
-     
-    public WorkerThread(String s){
-        this.command=s;
-    }
- 
-    @Override
-    public void run() {
-        System.out.println(Thread.currentThread().getName()+" Start. Command = "+command);
-        processCommand();
-        System.out.println(Thread.currentThread().getName()+" End.");
-    }
- 
-    private void processCommand() {
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
- 
-    @Override
-    public String toString(){
-        return this.command;
-    }
-}
 
  
 class SimpleThreadPool {
@@ -54,9 +26,22 @@ class SimpleThreadPool {
    ExecutorService executor ;
 
     public SimpleThreadPool() {
-        executor = Executors.newFixedThreadPool(5);
+        executor = Executors.newFixedThreadPool(10);
     }
 
+    public void post( Runnable worker )
+    {
+        executor.execute(worker);
+    }
+
+    public void waitForCompletion()
+    {
+        executor.shutdown(); 
+        while (!executor.isTerminated()) {
+        }
+    }
+  
+/*
     public void start() { 
         for (int i = 0; i < 10; i++) {
             Runnable worker = new WorkerThread("" + i);
@@ -69,6 +54,7 @@ class SimpleThreadPool {
 
         System.out.println("Finished all threads");
     }
+*/
 }
 
 
@@ -123,42 +109,85 @@ class S3ToFileAdaptor
 
 
 
+class WorkerThread implements Runnable {
+     
+    private S3Browser browser;
+    private String file;
+     
+    public WorkerThread(S3Browser browser, String s){
+        this.browser = browser;
+        this.file=s;
+    }
+ 
+    @Override
+    public void run() {
+        // System.out.println(Thread.currentThread().getName()+" Start. Command = "+file);
+        // processCommand();
+        try {
+            S3ToFileAdaptor s3ToFileAdaptor = new S3ToFileAdaptor(browser);
+            String f = s3ToFileAdaptor.getObject( file ); 
+        } catch( IOException e )
+        {
+            e.printStackTrace();
+        }
+        // System.out.println(Thread.currentThread().getName()+" End.");
+    }
+ 
+/*    private void processCommand() {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+*/
+ 
+    @Override
+    public String toString(){
+        return this.file;
+    }
+}
+
+
+
 public class S3Sample {
 
-    static void recurse( S3Browser browser, String path ) throws IOException
+    static void recurse( SimpleThreadPool pool, S3Browser browser, String path ) throws IOException
     {
 
         // rename dir to dir,, 
         for (String dir : browser.getDirs(path)) {
             System.out.println(" - " + dir );
-            recurse( browser, dir );
+            recurse( pool, browser, dir );
 
             for( String file : browser.getFiles( dir )) {
                 System.out.println(" opening " + file );
 
-
+                pool.post( new WorkerThread( browser, file ) );
+/* 
+                // ok, so we are going to have to just dispatch out ....
                 S3ToFileAdaptor s3ToFileAdaptor = new S3ToFileAdaptor(browser);
-
                 String f = s3ToFileAdaptor.getObject( file ); 
-
+*/
             }
-
         }
     }
 
     public static void main(String[] args) throws IOException {
 
         SimpleThreadPool pool = new  SimpleThreadPool();
-        pool.start();
-        
 
-/*
-        System.out.println("main()");
+        // System.out.println("main()");
 
         S3Browser browser = new S3Browser( "./aws_credentials" , "default", "imos-data" ) ;
 
-        recurse( browser, "/IMOS/ACORN/gridded_1h-avg-current-map_QC/ROT/2014/01" );
-*/
+        recurse( pool, browser, "/IMOS/ACORN/gridded_1h-avg-current-map_QC/ROT/2014/01" );
+
+        System.out.println("waiting for completion" ); 
+        pool.waitForCompletion();
+
+        System.out.println("finished" ); 
+ 
     }
 }
 
