@@ -155,7 +155,11 @@ public class S3Sample {
 
         S3Browser browser = new S3Browser( "./aws_credentials" , "default", "imos-data" ) ;
 
-        recurse( pool, browser, "/IMOS/ACORN/gridded_1h-avg-current-map_QC/ROT/2014/01" );
+//        recurse( pool, browser, "/IMOS/ACORN/gridded_1h-avg-current-map_QC/ROT/2014/01" );
+
+        recurse( pool, browser, "/" );
+
+
 
         System.out.println("waiting for completion" ); 
         pool.waitForCompletion();
