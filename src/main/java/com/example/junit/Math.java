@@ -1,4 +1,4 @@
-package com.hmkcode.junit;
+package com.example.junit;
 
 /**
  * Hello world!

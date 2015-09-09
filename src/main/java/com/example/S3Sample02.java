@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-package com.hmkcode;
+package com.example;
 
 
 import java.io.BufferedReader;

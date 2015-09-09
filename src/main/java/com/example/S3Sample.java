@@ -1,6 +1,6 @@
 
 
-package com.hmkcode;
+package com.example;
 
 
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 
-import com.hmkcode.S3Browser;
+import com.example.S3Browser;
 
 
 

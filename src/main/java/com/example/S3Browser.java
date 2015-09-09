@@ -1,5 +1,5 @@
 
-package com.hmkcode;
+package com.example;
 // package uk.ac.rdg.resc.ncwms.config;
 
 import java.util.List;
