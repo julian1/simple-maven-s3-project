@@ -127,8 +127,51 @@ class WorkerThread implements Runnable {
 
 
 
+class DirWorkerThread implements Runnable {
+
+    private SimpleThreadPool pool; 
+    private S3Browser browser;
+    private String path;
+
+    public DirWorkerThread( SimpleThreadPool pool, S3Browser browser, String path) {
+        this.pool = pool;
+        this.browser = browser;
+        this.path = path;
+    }
+
+    @Override
+    public void run() {
+
+        for (String dir : browser.getDirs(path)) {
+            // System.out.println(" - " + dir );
+            // recurse( pool, browser, dir );
+
+            System.out.println( "posting start " + dir );            
+
+            pool.post( new DirWorkerThread( pool, browser, dir));
+            System.out.println( "posting finish" );            
+
+            for( String file : browser.getFiles( dir )) {
+                System.out.println(" opening " + file );
+
+                pool.post( new WorkerThread( browser, file ) );
+            }
+        }
+    }
+
+    @Override
+    public String toString(){
+        return "dir " + this.path;
+    }
+}
+
+/*
+  change instance name of browser to s3Browser 
+*/
+
 public class S3Sample {
 
+/*
     static void recurse( SimpleThreadPool pool, S3Browser browser, String path ) throws IOException
     {
         for (String dir : browser.getDirs(path)) {
@@ -139,14 +182,11 @@ public class S3Sample {
                 System.out.println(" opening " + file );
 
                 pool.post( new WorkerThread( browser, file ) );
-/*
-                // ok, so we are going to have to just dispatch out ....
-                S3ToFileAdaptor s3ToFileAdaptor = new S3ToFileAdaptor(browser);
-                String f = s3ToFileAdaptor.getObject( file );
-*/
+
             }
         }
     }
+*/
 
     public static void main(String[] args) throws IOException {
 
@@ -156,16 +196,20 @@ public class S3Sample {
 
         S3Browser browser = new S3Browser( "./aws_credentials" , "default", "imos-data" ) ;
 
-        recurse( pool, browser, "/IMOS/ACORN/gridded_1h-avg-current-map_QC/ROT/2014/01" );
+        // recurse( pool, browser, "/IMOS/ACORN/gridded_1h-avg-current-map_QC/ROT/2014/01" );
 
         // recurse( pool, browser, "/" );
 
+        pool.post( new DirWorkerThread( pool, browser, "/IMOS/ACORN/gridded_1h-avg-current-map_QC/ROT/2014/01" ) );
 
 
         System.out.println("waiting for completion" );
-        pool.waitForCompletion();
+    
+        while( true) { 
+        }
+//        pool.waitForCompletion();
 
-        System.out.println("finished" );
+//        System.out.println("finished" );
 
     }
 }
