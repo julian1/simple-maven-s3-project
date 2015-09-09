@@ -93,9 +93,9 @@ class S3Browser {
             }
 
             if( isSymlink(file)) {
-                System.out.println("It's a fucking symbolic link '" );
+                System.out.println("It's a symbolic link '" );
             } else {
-                System.out.println("It's not a fucking symbolic link '" );
+                System.out.println("It's not a symbolic link '" );
             } 
             
 /*            if( file.isSymbolicLink()) {
