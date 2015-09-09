@@ -40,21 +40,6 @@ class SimpleThreadPool {
         while (!executor.isTerminated()) {
         }
     }
-  
-/*
-    public void start() { 
-        for (int i = 0; i < 10; i++) {
-            Runnable worker = new WorkerThread("" + i);
-            executor.execute(worker);
-          }
-        executor.shutdown();
-        // sleep 
-        while (!executor.isTerminated()) {
-        }
-
-        System.out.println("Finished all threads");
-    }
-*/
 }
 
 
@@ -133,15 +118,6 @@ class WorkerThread implements Runnable {
         // System.out.println(Thread.currentThread().getName()+" End.");
     }
  
-/*    private void processCommand() {
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-*/
- 
     @Override
     public String toString(){
         return this.file;
@@ -154,8 +130,6 @@ public class S3Sample {
 
     static void recurse( SimpleThreadPool pool, S3Browser browser, String path ) throws IOException
     {
-
-        // rename dir to dir,, 
         for (String dir : browser.getDirs(path)) {
             System.out.println(" - " + dir );
             recurse( pool, browser, dir );
@@ -191,43 +165,4 @@ public class S3Sample {
     }
 }
 
-
-
-/*
-        // should write a recursive version ... that drills down...
-        ObjectListing objectListing = s3.listObjects(new ListObjectsRequest()
-                .withBucketName(bucketName)
-               .withPrefix("home/meteo/")   //
-               .withDelimiter("/")
-            )
-        ;
-*/
-
-
-/*
-
-        System.out.println("getting listing");
-
-        ObjectListing objectListing = s3.listObjects(new ListObjectsRequest()
-                .withBucketName(bucketName)
-               .withPrefix("home/meteo/")   //
-               .withDelimiter("/")
-            )
-        ;
-        System.out.println("done getting listing");
-
-
-        // boolean
-        System.out.println("found " + !objectListing.getObjectSummaries().isEmpty() );
-
-        System.out.println("count " + objectListing.getObjectSummaries().size());
-
-        System.out.println("Listing objects");
-        for (S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
-            System.out.println(" - " + objectSummary.getKey() + "  " +
-                               "(size = " + objectSummary.getSize() + ")");
-        }
-
-        System.out.println("\ndone\n");
-*/
 
