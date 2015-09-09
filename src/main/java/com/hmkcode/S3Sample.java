@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.io.IOException;
 
+import java.io.InputStream;
+
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
@@ -32,14 +34,21 @@ import com.hmkcode.S3Browser;
 
 public class S3Sample {
 
-    static void recurse( S3Browser browser, String path )
+    static void recurse( S3Browser browser, String path ) throws IOException
     {
-        for (String key : browser.getDirs(path)) {
-            System.out.println(" - " + key );
-            recurse( browser, key );
 
-            for( String file : browser.getFiles( key )) {
-                System.out.println(" file " + file );
+        // rename dir to dir,, 
+        for (String dir : browser.getDirs(path)) {
+            System.out.println(" - " + dir );
+            recurse( browser, dir );
+
+            for( String file : browser.getFiles( dir )) {
+                System.out.println(" opening " + file );
+
+                InputStream is = browser.getObject( "/" + file ); 
+
+                is.close();
+ 
             }
 
         }
