@@ -105,15 +105,17 @@ public class S3Sample {
         // AmazonS3 s3 = new S3Authenticate().doit("./aws_credentials" , "default");
         AmazonS3 s3 = new AmazonS3Client();
 
-        S3Browser browser = new S3Browser( s3, "imos-data" );//"./aws_credentials" , "default", "imos-data" ) ;
+        // S3Browser browser = new S3Browser( s3, "imos-data/IMOS/SRS/" );
+        S3Browser browser = new S3Browser( s3, "imos-data" );
+
+// imos-data/IMOS/SRS/
 
 //        S3ToFileAdaptor s3ToFileAdaptor = new S3ToFileAdaptor( browser, "/tmp/ncwms" );
 //        recurse( pool, browser, s3ToFileAdaptor, "" );
 //        recurse( pool, browser, s3ToFileAdaptor, "/IMOS/ACORN/gridded_1h-avg-current-map_QC/ROT/2014/01" );
-//        recurse( pool, browser, s3ToFileAdaptor, "/IMOS/SRS/sst/ghrsst/L3U-S/n19/2015" );
+//        recurse( pool, browser, s3ToFileAdaptor, "/IMOS/SRS/sst/ghrsst/L3U-S/n19/2015" ); 
 
-        recurse( pool, browser, null /*s3ToFileAdaptor*/, "/IMOS" );
-
+        recurse( pool, browser, null /*s3ToFileAdaptor*/, "/IMOS/SRS" ); 
 
         // recurse( pool, browser, "/" );
 
