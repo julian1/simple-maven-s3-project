@@ -166,6 +166,8 @@ public class S3Sample {
         }
 
         // java -jar ./target/s3-example-1.0-SNAPSHOT-shaded.jar -db 'jdbc:postgresql://dbprod.emii.org.au/harvest' -u jfca -p xxxx
+        // ;sslfactory=org.postgresql.ssl.NonValidatingFactory
+        // java -jar ./target/s3-example-1.0-SNAPSHOT-shaded.jar -db 'jdbc:postgresql://dbprod.emii.org.au/harvest?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory'  -u jfca -p xxxx 
 
         String username = cmd.getOptionValue("u");
         String password = cmd.getOptionValue("p");

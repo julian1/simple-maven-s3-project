@@ -32,6 +32,7 @@ java -jar ./target/s3-example-1.0-SNAPSHOT-shaded.jar
 ---
 Ok, it's retarded, it's trying to aggregate the jars from the previously mvn built project.
 
+java -jar ./target/s3-example-1.0-SNAPSHOT-shaded.jar -db 'jdbc:postgresql://dbprod.emii.org.au/harvest?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory'  -u jfca -p xxxx 
 
 ----
 So think we should pass off the command line options for the db  instantiation - separately... 
