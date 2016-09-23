@@ -105,6 +105,22 @@ class WorkerThread implements Runnable {
 
 
 
+class Record {
+
+    String  key;   // not really an issue to store the same key in the k
+    int db;
+    int s3;
+    boolean deletedFlagSet;
+
+    public Record(String key) {
+        this.key = key;
+        this.db = 0;
+        this.s3= 0;
+        this.deletedFlagSet = false;
+    }
+}
+
+
 
 public class S3Sample {
 
@@ -115,7 +131,7 @@ public class S3Sample {
 
     // static string buf = "";
 
-    static Map<String, String> m = new HashMap<String, String>();
+    static Map<String, Record> m = new HashMap<String, Record>();
 
     static void recurse(
         //SimpleThreadPool pool,
@@ -132,7 +148,6 @@ public class S3Sample {
             return ;
         }
 
-
         for (String dir : browser.getDirs(path)) {
             // System.out.println(" - " + dir );
             recurse( /*pool,*/ browser, s3ToFileAdaptor, dir );
@@ -145,13 +160,19 @@ public class S3Sample {
             // System.out.print(  buf + '\r' );
 
             // can use the same structure
-            m.put(file, "whoot");
+            // SHOULD PROBABLY 
+
+            if(m.get(file) != null) {
+                System.out.println("already exists!!!!");  /// should throw...
+                System.exit(1);
+            } else {
+                Record r = new Record( file);
+                r.s3 += 1;
+                m.put(file, r);
+            }
 
             System.out.print( " count: " + String.format("%d", m.size() )  + '\r' );
 
-            // System.out.println(" got " + file );
-            // System.out.println( file );
-            // pool.post( new WorkerThread( s3ToFileAdaptor, file ) );
         }
     }
 
@@ -242,20 +263,19 @@ public class S3Sample {
 
         recurse( /*pool,*/ browser, null /*s3ToFileAdaptor*/, "/IMOS/SRS" );
 
-        // recurse( pool, browser, "/" );
-
-//        System.out.println("waiting for completion" );
-//        pool.waitForCompletion();
+//      recurse( pool, browser, "/" );
+//      System.out.println("waiting for completion" );
+//      pool.waitForCompletion();
 
         System.out.println("finished" );
 
         // print results...
 
-        for (Map.Entry<String, String> entry : m.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
+        for (Map.Entry<String, Record> entry : m.entrySet()) {
+            // String key = entry.getKey();
+            Record record = entry.getValue();
             // ...
-            System.out.println("whoot" + key );
+            System.out.println("whoot" + record.key + " " + record.s3 );
         }
 
 
@@ -268,4 +288,7 @@ public class S3Sample {
 // recurse( pool, browser, s3ToFileAdaptor, "" );
 // recurse( pool, browser, s3ToFileAdaptor, "/IMOS/ACORN/gridded_1h-avg-current-map_QC/ROT/2014/01" );
 // recurse( pool, browser, s3ToFileAdaptor, "/IMOS/SRS/sst/ghrsst/L3U-S/n19/2015" );
+            // System.out.println(" got " + file );
+            // System.out.println( file );
+            // pool.post( new WorkerThread( s3ToFileAdaptor, file ) );
 
