@@ -13,6 +13,13 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 
 
+// import java.util.regex.Matcher;
+// import java.util.regex.Pattern;
+
+import org.apache.commons.cli.*;
+
+
+
 class SimpleThreadPool {
   // TODO do we even need this...
 
@@ -76,9 +83,30 @@ class WorkerThread implements Runnable {
 
 
 
+/*
+      // String to be scanned to find the pattern.
+      String line = "This order was placed for QT3000! OK?";
+      String pattern = "(.*)(\\d+)(.*)";
+
+      // Create a Pattern object
+      Pattern r = Pattern.compile(pattern);
+
+      // Now create matcher object.
+      Matcher m = r.matcher(line);
+      if (m.find( )) {
+
+*/
+
+
+
+
 public class S3Sample {
 
     // TODO this function should be in the pool,
+
+
+    // Pattern isFilePattern; 
+    // use a context for all this?  or use this class as a context,
 
     static void recurse(
         SimpleThreadPool pool,
@@ -87,18 +115,43 @@ public class S3Sample {
         String path )
         throws IOException
     {
+        // we only use recursion on things that are not complete file
+
+        // although we could set up the recursion to work in parallel,
+
+
         for (String dir : browser.getDirs(path)) {
-            System.out.println(" - " + dir );
+            // System.out.println(" - " + dir );
             recurse( pool, browser, s3ToFileAdaptor, dir );
         }
 
+        // get objects at the current level
         for( String file : browser.getFiles( path)) {
-            System.out.println(" opening " + file );
-    //        pool.post( new WorkerThread( s3ToFileAdaptor, file ) );
+            // System.out.println(" got " + file );
+            System.out.println( file );
+            // pool.post( new WorkerThread( s3ToFileAdaptor, file ) );
         }
     }
 
+
+
+    public static void getConnection(Options options) { 
+
+
+    }
+
+
     public static void main(String[] args) throws IOException {
+
+
+        Options options = new Options();
+
+        options.addOption("u", "username", true, "Database user.");
+        options.addOption("p", "password", true, "Database password.");
+        options.addOption("d", "db", true, "Database connection string.");
+        options.addOption("D", "driver", true, "Database driver class.");
+
+
 
         SimpleThreadPool pool = new  SimpleThreadPool();
 
@@ -107,13 +160,6 @@ public class S3Sample {
 
         // S3Browser browser = new S3Browser( s3, "imos-data/IMOS/SRS/" );
         S3Browser browser = new S3Browser( s3, "imos-data" );
-
-// imos-data/IMOS/SRS/
-
-//        S3ToFileAdaptor s3ToFileAdaptor = new S3ToFileAdaptor( browser, "/tmp/ncwms" );
-//        recurse( pool, browser, s3ToFileAdaptor, "" );
-//        recurse( pool, browser, s3ToFileAdaptor, "/IMOS/ACORN/gridded_1h-avg-current-map_QC/ROT/2014/01" );
-//        recurse( pool, browser, s3ToFileAdaptor, "/IMOS/SRS/sst/ghrsst/L3U-S/n19/2015" ); 
 
         recurse( pool, browser, null /*s3ToFileAdaptor*/, "/IMOS/SRS" ); 
 
@@ -127,4 +173,10 @@ public class S3Sample {
     }
 }
 
+
+// imos-data/IMOS/SRS/
+// S3ToFileAdaptor s3ToFileAdaptor = new S3ToFileAdaptor( browser, "/tmp/ncwms" );
+// recurse( pool, browser, s3ToFileAdaptor, "" );
+// recurse( pool, browser, s3ToFileAdaptor, "/IMOS/ACORN/gridded_1h-avg-current-map_QC/ROT/2014/01" );
+// recurse( pool, browser, s3ToFileAdaptor, "/IMOS/SRS/sst/ghrsst/L3U-S/n19/2015" ); 
 
