@@ -8,9 +8,11 @@
   <packaging>jar</packaging>
 
   <dependencies>
+
     <dependency>
         <groupId>com.amazonaws</groupId>
-        <artifactId>aws-java-sdk</artifactId>
+        <!-- artifactId>aws-java-sdk</artifactId -->
+        <artifactId>aws-java-sdk-s3</artifactId>
         <version>1.11.36</version>
     </dependency>
 
@@ -58,7 +60,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>2.3</version>
+        <version>2.4.3</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -73,6 +75,7 @@
                 </transformer>
               </transformers>
               <createDependencyReducedPom>false</createDependencyReducedPom>
+              <!-- minimizeJar>true</minimizeJar -->
               <!-- http://stackoverflow.com/questions/999489/invalid-signature-file-when-attempting-to-run-a-jar -->
               <filters>
                 <filter>

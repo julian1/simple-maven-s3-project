@@ -15,11 +15,15 @@
 - retrieve from db?
 - ncwms - code for cdm? 
 
+---
+Ok, it's retarded, it's trying to aggregate the jars from the previously mvn built project.
+
+
 ----
 So think we should pass off the command line options for the db  instantiation - separately... 
 
-
-
+- may want to make the individual file lookup - in the db multithreaded...
+- if handle in memory...
 
 
 harvest=# select * from srs_oc_ljco_wws.indexed_file where url = 'IMOS/SRS/OC/LJCO/ACS-hourly/2016/03/28/IMOS_SRS-OC-LJCO_FTZ_20160328T234337Z_SRC_FV01_ACS-hourly-wcc.nc'
