@@ -174,10 +174,12 @@ public class S3Sample {
         String connectionString = cmd.getOptionValue("d");
         String databaseDriver = cmd.getOptionValue("D", "org.postgresql.Driver");
 
-        if (username == null) { usage(options); }
-        if (password == null) { usage(options); }
-        if (connectionString == null) { usage(options); }
-        if (databaseDriver == null) { usage(options); }
+        if (username == null
+            || password == null 
+            || connectionString == null
+            || databaseDriver == null) { 
+            usage(options); 
+        }
 
 
         Connection result = null;
@@ -199,6 +201,7 @@ public class S3Sample {
             System.exit(1);
         }
 
+        System.out.printf("got connection");
         return result;
     }
 
