@@ -21,6 +21,10 @@ import org.apache.commons.cli.*;
 import java.sql.*;
 
 
+import java.util.Map;
+import java.util.HashMap;
+
+
 
 class SimpleThreadPool {
   // TODO do we even need this...
@@ -110,7 +114,8 @@ public class S3Sample {
     // use a context for all this?  or use this class as a context,
 
     // static string buf = "";
-    static int count = 0;
+
+    static Map<String, String> m = new HashMap<String, String>();
 
     static void recurse(
         SimpleThreadPool pool,
@@ -134,8 +139,11 @@ public class S3Sample {
 
             // buf += ".";
             // System.out.print(  buf + '\r' );
-            ++count;
-            System.out.print( " count: " + String.format("%d", count)  + '\r' );
+
+            m.put(file, "whoot");
+
+            System.out.print( " count: " + String.format("%d", m.size() )  + '\r' );
+
 
             // System.out.println(" got " + file );
             // System.out.println( file );
@@ -152,23 +160,14 @@ public class S3Sample {
     }
 
 
-    public static Connection getConnection(String[] args, Options options) {
-
-        // should probably only parse once...
-        CommandLineParser parser = new DefaultParser();
-        CommandLine cmd = null;
-        try {
-            cmd = parser.parse(options, args);
-        }
-        catch (ParseException e) {
-            usage(options);
-        }
+    public static Connection getConnection(CommandLine cmd, Options options) {
 
         String username = cmd.getOptionValue("u");
         String password = cmd.getOptionValue("p");
         String connectionString = cmd.getOptionValue("d");
         String databaseDriver = cmd.getOptionValue("D", "org.postgresql.Driver");
 
+        // be much nicer if didn't have to pass options here,
         if (username == null
             || password == null 
             || connectionString == null
@@ -212,7 +211,20 @@ public class S3Sample {
 
 
         // should probably only parse once...
-        getConnection(args, options);
+        CommandLineParser parser = new DefaultParser();
+        CommandLine cmd = null;
+        try {
+            cmd = parser.parse(options, args);
+        }
+        catch (ParseException e) {
+            usage(options);
+        }
+
+
+
+ 
+        // should probably only parse once...
+        getConnection(cmd, options);
 
 
 
