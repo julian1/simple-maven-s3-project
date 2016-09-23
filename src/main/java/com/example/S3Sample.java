@@ -104,9 +104,11 @@ public class S3Sample {
 
     // TODO this function should be in the pool,
 
-
     // Pattern isFilePattern; 
     // use a context for all this?  or use this class as a context,
+
+    // static string buf = "";
+    static int count = 0;
 
     static void recurse(
         SimpleThreadPool pool,
@@ -127,8 +129,14 @@ public class S3Sample {
 
         // get objects at the current level
         for( String file : browser.getFiles( path)) {
+
+            // buf += ".";
+            // System.out.print(  buf + '\r' );
+            ++count;
+            System.out.print( " count: " + String.format("%d", count)  + '\r' );
+
             // System.out.println(" got " + file );
-            System.out.println( file );
+            // System.out.println( file );
             // pool.post( new WorkerThread( s3ToFileAdaptor, file ) );
         }
     }
