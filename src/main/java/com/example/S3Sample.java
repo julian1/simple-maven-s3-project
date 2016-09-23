@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 
-
+/*
 class SimpleThreadPool {
   // TODO do we even need this...
 
@@ -69,10 +69,10 @@ class WorkerThread implements Runnable {
             String f = s3ToFileAdaptor.getObjectFilename( file );
             s3ToFileAdaptor.closeFile( f );
 
-/*
-            extract as in-memory buffer
-            byte [] buf = s3ToFileAdaptor.getObjectBytes( file );
-*/
+
+//            extract as in-memory buffer
+ //           byte [] buf = s3ToFileAdaptor.getObjectBytes( file );
+
 
         } catch( IOException e )
         {
@@ -86,7 +86,7 @@ class WorkerThread implements Runnable {
         return this.file;
     }
 }
-
+*/
 
 
 /*
@@ -118,7 +118,7 @@ public class S3Sample {
     static Map<String, String> m = new HashMap<String, String>();
 
     static void recurse(
-        SimpleThreadPool pool,
+        //SimpleThreadPool pool,
         S3Browser browser,
         S3ToFileAdaptor s3ToFileAdaptor,
         String path )
@@ -128,14 +128,14 @@ public class S3Sample {
 
         // although we could set up the recursion to work in parallel,
 
-        if(m.size() > 100) {
+        if(m.size() > 50) {
             return ;
         }
 
 
         for (String dir : browser.getDirs(path)) {
             // System.out.println(" - " + dir );
-            recurse( pool, browser, s3ToFileAdaptor, dir );
+            recurse( /*pool,*/ browser, s3ToFileAdaptor, dir );
         }
 
         // get objects at the current level
@@ -232,7 +232,7 @@ public class S3Sample {
 
 
 
-        SimpleThreadPool pool = new SimpleThreadPool();
+        // SimpleThreadPool pool = new SimpleThreadPool();
 
         // AmazonS3 s3 = new S3Authenticate().doit("./aws_credentials" , "default");
         AmazonS3 s3 = new AmazonS3Client();
@@ -240,12 +240,12 @@ public class S3Sample {
         // S3Browser browser = new S3Browser( s3, "imos-data/IMOS/SRS/" );
         S3Browser browser = new S3Browser( s3, "imos-data" );
 
-        recurse( pool, browser, null /*s3ToFileAdaptor*/, "/IMOS/SRS" );
+        recurse( /*pool,*/ browser, null /*s3ToFileAdaptor*/, "/IMOS/SRS" );
 
         // recurse( pool, browser, "/" );
 
-        System.out.println("waiting for completion" );
-        pool.waitForCompletion();
+//        System.out.println("waiting for completion" );
+//        pool.waitForCompletion();
 
         System.out.println("finished" );
 
