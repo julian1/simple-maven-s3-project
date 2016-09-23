@@ -128,6 +128,10 @@ public class S3Sample {
 
         // although we could set up the recursion to work in parallel,
 
+        if(m.size() > 100) {
+            return ;
+        }
+
 
         for (String dir : browser.getDirs(path)) {
             // System.out.println(" - " + dir );
@@ -140,10 +144,10 @@ public class S3Sample {
             // buf += ".";
             // System.out.print(  buf + '\r' );
 
+            // can use the same structure
             m.put(file, "whoot");
 
             System.out.print( " count: " + String.format("%d", m.size() )  + '\r' );
-
 
             // System.out.println(" got " + file );
             // System.out.println( file );
@@ -244,6 +248,16 @@ public class S3Sample {
         pool.waitForCompletion();
 
         System.out.println("finished" );
+
+        // print results...
+
+        for (Map.Entry<String, String> entry : m.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            // ...
+            System.out.println("whoot" + key );
+        }
+
 
     }
 }
