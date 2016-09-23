@@ -18,6 +18,8 @@ import com.amazonaws.services.s3.AmazonS3Client;
 
 import org.apache.commons.cli.*;
 
+import java.sql.*;
+
 
 
 class SimpleThreadPool {
@@ -104,7 +106,7 @@ public class S3Sample {
 
     // TODO this function should be in the pool,
 
-    // Pattern isFilePattern; 
+    // Pattern isFilePattern;
     // use a context for all this?  or use this class as a context,
 
     // static string buf = "";
@@ -143,9 +145,59 @@ public class S3Sample {
 
 
 
-    public static void getConnection(Options options) { 
+    public static void usage(Options options) {
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp("S3Sample", options);
+        System.exit(1);
+    }
 
 
+    public static Connection getConnection(String[] args, Options options) {
+
+        // should probably only parse once...
+        CommandLineParser parser = new DefaultParser();
+        CommandLine cmd = null;
+        try {
+            cmd = parser.parse(options, args);
+        }
+        catch (ParseException e) {
+
+            usage(options);
+        }
+
+        // java -jar ./target/s3-example-1.0-SNAPSHOT-shaded.jar -db 'jdbc:postgresql://dbprod.emii.org.au/harvest' -u jfca -p xxxx
+
+        String username = cmd.getOptionValue("u");
+        String password = cmd.getOptionValue("p");
+        String connectionString = cmd.getOptionValue("d");
+        String databaseDriver = cmd.getOptionValue("D", "org.postgresql.Driver");
+
+        if (username == null) { usage(options); }
+        if (password == null) { usage(options); }
+        if (connectionString == null) { usage(options); }
+        if (databaseDriver == null) { usage(options); }
+
+
+        Connection result = null;
+        try {
+            Class.forName(databaseDriver).newInstance();
+        }
+        catch (Exception e){
+            System.out.printf("Check classpath. Cannot load db driver: '%s'%n", databaseDriver);
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        try {
+            result = DriverManager.getConnection(connectionString, username, password);
+        }
+        catch (SQLException e){
+            System.out.printf("Cannot connect to db: '%s'%n", connectionString);
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        return result;
     }
 
 
@@ -157,11 +209,15 @@ public class S3Sample {
         options.addOption("u", "username", true, "Database user.");
         options.addOption("p", "password", true, "Database password.");
         options.addOption("d", "db", true, "Database connection string.");
-        options.addOption("D", "driver", true, "Database driver class.");
+        options.addOption("D", "driver", true, "Database driver class.");  // TODO make optional
+
+
+        // should probably only parse once...
+        getConnection(args, options);
 
 
 
-        SimpleThreadPool pool = new  SimpleThreadPool();
+        SimpleThreadPool pool = new SimpleThreadPool();
 
         // AmazonS3 s3 = new S3Authenticate().doit("./aws_credentials" , "default");
         AmazonS3 s3 = new AmazonS3Client();
@@ -169,7 +225,7 @@ public class S3Sample {
         // S3Browser browser = new S3Browser( s3, "imos-data/IMOS/SRS/" );
         S3Browser browser = new S3Browser( s3, "imos-data" );
 
-        recurse( pool, browser, null /*s3ToFileAdaptor*/, "/IMOS/SRS" ); 
+        recurse( pool, browser, null /*s3ToFileAdaptor*/, "/IMOS/SRS" );
 
         // recurse( pool, browser, "/" );
 
@@ -186,5 +242,5 @@ public class S3Sample {
 // S3ToFileAdaptor s3ToFileAdaptor = new S3ToFileAdaptor( browser, "/tmp/ncwms" );
 // recurse( pool, browser, s3ToFileAdaptor, "" );
 // recurse( pool, browser, s3ToFileAdaptor, "/IMOS/ACORN/gridded_1h-avg-current-map_QC/ROT/2014/01" );
-// recurse( pool, browser, s3ToFileAdaptor, "/IMOS/SRS/sst/ghrsst/L3U-S/n19/2015" ); 
+// recurse( pool, browser, s3ToFileAdaptor, "/IMOS/SRS/sst/ghrsst/L3U-S/n19/2015" );
 
