@@ -1,4 +1,18 @@
 
+
+### Build
+```
+mvn clean install
+```
+
+
+### Run
+```
+java -jar ./target/s3-example-1.0-SNAPSHOT-shaded.jar
+```
+
+
+
 ### TODO
 - done - use mvn shade plugin.
 - done - move the s3 authentication stuff out of the s3 browser class,
@@ -28,15 +42,4 @@ So think we should pass off the command line options for the db  instantiation -
 
 harvest=# select * from srs_oc_ljco_wws.indexed_file where url = 'IMOS/SRS/OC/LJCO/ACS-hourly/2016/03/28/IMOS_SRS-OC-LJCO_FTZ_20160328T234337Z_SRC_FV01_ACS-hourly-wcc.nc'
 
-
-### Build
-```
-mvn clean install
-```
-
-
-### Run
-```
-java -jar ./target/s3-example-1.0-SNAPSHOT.jar
-```
 

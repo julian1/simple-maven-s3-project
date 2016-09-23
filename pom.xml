@@ -32,6 +32,7 @@
 
   <build>
     <plugins>
+
       <!-- http://zeroturnaround.com/rebellabs/the-correct-way-to-use-integration-tests-in-your-build-process/ -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -52,6 +53,7 @@
           </execution>
         </executions>
       </plugin>
+
       <!--
           http://maven.apache.org/plugins/maven-shade-plugin/examples/executable-jar.html
             and
@@ -68,6 +70,9 @@
               <goal>shade</goal>
             </goals>
             <configuration>
+              <!-- outputDirectory>tmp</outputDirectory -->
+              <!-- this prevents the artifacts from the last build being re-included in the new one --> 
+              <shadedArtifactAttached>true</shadedArtifactAttached>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <mainClass>com.example.S3Sample</mainClass>
@@ -91,6 +96,7 @@
           </execution>
         </executions>
       </plugin>
+
       <!-- http://stackoverflow.com/questions/8975096/maven-checkstyle-configlocation-ignored -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
